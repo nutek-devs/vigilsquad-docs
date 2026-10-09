@@ -3,7 +3,13 @@ name: Deploy Docs
 on:
   push:
     branches: [main]
+  # Also dispatched by nutek-devs/vigilsquad (openapi-sync.yml) when
+  # docs/openapi.json changes on its main branch.
   workflow_dispatch:
+
+concurrency:
+  group: deploy-docs
+  cancel-in-progress: false
 
 permissions:
   contents: read
@@ -16,16 +22,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # The API reference is built from the spec the production API serves:
+      # nutek-devs/vigilsquad@main docs/openapi.json. That repo is private and
+      # this one is public (logs included), so only that one file is checked out.
+      - name: Checkout OpenAPI spec (vigilsquad@main)
+        uses: actions/checkout@v4
+        with:
+          repository: nutek-devs/vigilsquad
+          ref: main
+          token: ${{ secrets.GH_CONTAINER_REGISTRY_TOKEN }}
+          # Org PAT: do not leave it in vigilsquad/.git/config, where npm
+          # lifecycle scripts and build plugins could read it.
+          persist-credentials: false
+          path: vigilsquad
+          sparse-checkout: docs/openapi.json
+          sparse-checkout-cone-mode: false
+
+      - name: Sync OpenAPI spec
+        run: cp vigilsquad/docs/openapi.json static/openapi.json
+
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Typecheck
+        run: npm run typecheck
+
       - name: Generate API docs from OpenAPI spec
-        run: npx docusaurus gen-api-docs all
+        run: npx docusaurus clean-api-docs all && npx docusaurus gen-api-docs all
 
       - name: Build site (all locales)
         run: npm run build

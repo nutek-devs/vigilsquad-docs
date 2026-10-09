@@ -5,13 +5,18 @@ import type * as OpenApiPlugin from "docusaurus-plugin-openapi-docs";
 const config: Config = {
   title: "VigilSquad Docs",
   tagline: "Build AI-powered customer agents",
-  favicon: "img/favicon.ico",
+  favicon: "img/logo.svg",
   url: "https://docs.vigilsquad.com",
   baseUrl: "/",
   organizationName: "nutek-devs",
   projectName: "vigilsquad-docs",
   onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
+
+  markdown: {
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
 
   i18n: {
     defaultLocale: "en",
