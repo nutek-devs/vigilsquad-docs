@@ -8,48 +8,6 @@ const sidebar: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Sessions",
-      items: [
-        {
-          type: "doc",
-          id: "api/get-the-shared-conversation-context-and-agent-path-for-a-session",
-          label: "Get the shared conversation context and agent path for a session",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/reassign-a-session-to-a-different-agent",
-          label: "Reassign a session to a different agent",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
-          id: "api/get-the-current-status-of-a-session",
-          label: "Get the current status of a session",
-          className: "api-method get",
-        },
-        {
-          type: "doc",
-          id: "api/pause-a-session-agent-stops-responding-inbound-is-still-persisted",
-          label: "Pause a session (agent stops responding, inbound is still persisted)",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
-          id: "api/resume-a-paused-session",
-          label: "Resume a paused session",
-          className: "api-method post",
-        },
-        {
-          type: "doc",
-          id: "api/close-a-session-terminal-state",
-          label: "Close a session (terminal state)",
-          className: "api-method post",
-        },
-      ],
-    },
-    {
-      type: "category",
       label: "Agents",
       items: [
         {
@@ -174,8 +132,14 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
-          id: "api/validate-integration-credentials",
-          label: "Validate integration credentials",
+          id: "api/validate-integration-credentials-and-for-chat-2-desk-the-registered-webhook",
+          label: "Validate integration credentials and, for Chat2Desk, the registered webhook",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/register-or-re-register-the-connector-webhook-with-the-external-platform",
+          label: "Register (or re-register) the connector webhook with the external platform",
           className: "api-method post",
         },
         {
@@ -192,14 +156,56 @@ const sidebar: SidebarsConfig = {
         },
         {
           type: "doc",
+          id: "api/bind-or-unbind-an-agent-to-an-integration-channel",
+          label: "Bind (or unbind) an agent to an integration channel",
+          className: "api-method patch",
+        },
+        {
+          type: "doc",
           id: "api/list-available-connector-types",
           label: "List available connector types",
           className: "api-method get",
         },
+      ],
+    },
+    {
+      type: "category",
+      label: "Sessions",
+      items: [
         {
           type: "doc",
-          id: "api/register-or-update-the-inbound-webhook-for-a-chat-2-desk-integration",
-          label: "Register or update the inbound webhook for a Chat2Desk integration",
+          id: "api/get-the-shared-conversation-context-and-agent-path-for-a-session",
+          label: "Get the shared conversation context and agent path for a session",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/reassign-a-session-to-a-different-agent",
+          label: "Reassign a session to a different agent",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/get-the-current-status-of-a-session",
+          label: "Get the current status of a session",
+          className: "api-method get",
+        },
+        {
+          type: "doc",
+          id: "api/pause-a-session-agent-stops-responding-inbound-is-still-persisted",
+          label: "Pause a session (agent stops responding, inbound is still persisted)",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/resume-a-paused-session",
+          label: "Resume a paused session",
+          className: "api-method post",
+        },
+        {
+          type: "doc",
+          id: "api/close-a-session-terminal-state",
+          label: "Close a session (terminal state)",
           className: "api-method post",
         },
       ],

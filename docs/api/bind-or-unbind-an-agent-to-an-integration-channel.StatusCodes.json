@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Channel updated","content":{"application/json":{"schema":{"type":"object","properties":{"channel":{"type":"object"}}}}}},"400":{"description":"Invalid body"},"404":{"description":"Integration, channel or agent not found"},"500":{"description":"Internal server error"}}}

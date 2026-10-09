@@ -65,13 +65,18 @@
                           "status": {
                             "type": "string"
                           },
-                          "systemPrompt": {
-                            "type": "string"
+                          "promptSections": {
+                            "type": "object",
+                            "description": "Structured prompt sections (identity, role, context, personality, goal, guardrails, customSections)"
+                          },
+                          "templateId": {
+                            "type": "integer",
+                            "nullable": true
                           },
                           "llmProvider": {
                             "type": "string"
                           },
-                          "llmModel": {
+                          "aiModel": {
                             "type": "string"
                           }
                         }
@@ -105,14 +110,19 @@
                   "name": {
                     "type": "string"
                   },
-                  "systemPrompt": {
-                    "type": "string"
+                  "promptSections": {
+                    "type": "object",
+                    "description": "Structured prompt sections (identity, role, context, personality, goal, guardrails, customSections)"
+                  },
+                  "templateId": {
+                    "type": "integer",
+                    "nullable": true
                   },
                   "llmProvider": {
                     "type": "string",
                     "example": "openai"
                   },
-                  "llmModel": {
+                  "aiModel": {
                     "type": "string",
                     "example": "gpt-4o"
                   },
@@ -219,13 +229,18 @@
                   "name": {
                     "type": "string"
                   },
-                  "systemPrompt": {
-                    "type": "string"
+                  "promptSections": {
+                    "type": "object",
+                    "description": "Structured prompt sections (identity, role, context, personality, goal, guardrails, customSections)"
+                  },
+                  "templateId": {
+                    "type": "integer",
+                    "nullable": true
                   },
                   "llmProvider": {
                     "type": "string"
                   },
-                  "llmModel": {
+                  "aiModel": {
                     "type": "string"
                   },
                   "llmApiKey": {
@@ -600,6 +615,17 @@
                         },
                         "isSuperadmin": {
                           "type": "boolean"
+                        },
+                        "role": {
+                          "type": "string",
+                          "enum": [
+                            "owner",
+                            "admin",
+                            "developer",
+                            "member"
+                          ],
+                          "nullable": true,
+                          "description": "Role do utilizador na company (null se não for membro)"
                         }
                       }
                     },
@@ -969,7 +995,8 @@
     },
     "/api/integrations/{id}/validate": {
       "post": {
-        "summary": "Validate integration credentials",
+        "summary": "Validate integration credentials and, for Chat2Desk, the registered webhook",
+        "description": "Checks the connector credentials. For Chat2Desk it also looks the integration's webhook up in the customer's account: healthError is null when healthy, \"invalid_credentials\", \"webhook_not_registered\", \"webhook_disabled\" (Chat2Desk disables webhooks after delivery failures — Re-register re-enables it) or \"webhook_check_failed\" (Chat2Desk could not be queried; previous health kept).",
         "tags": [
           "Integrations"
         ],
@@ -993,11 +1020,66 @@
                   "properties": {
                     "valid": {
                       "type": "boolean"
+                    },
+                    "healthError": {
+                      "type": "string",
+                      "nullable": true,
+                      "enum": [
+                        "invalid_credentials",
+                        "webhook_not_registered",
+                        "webhook_disabled",
+                        "webhook_check_failed"
+                      ]
+                    },
+                    "webhook": {
+                      "type": "object",
+                      "properties": {
+                        "registered": {
+                          "type": "boolean"
+                        },
+                        "status": {
+                          "type": "string",
+                          "nullable": true
+                        }
+                      }
                     }
                   }
                 }
               }
             }
+          },
+          "404": {
+            "description": "Integration not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/integrations/{id}/register-webhook": {
+      "post": {
+        "summary": "Register (or re-register) the connector webhook with the external platform",
+        "description": "Idempotent. Registers this integration's inbound webhook on Chat2Desk using the CURRENT BASE_URL (the stored webhook_url is only a fallback and is corrected on success). An existing webhook with the same path (/api/webhook/chat2desk/{id}) is updated in place — domain change, secret rotation or rename never create duplicates.",
+        "tags": [
+          "Integrations"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Result of webhook registration"
+          },
+          "400": {
+            "description": "Connector does not support webhook auto-registration"
           },
           "404": {
             "description": "Integration not found"
@@ -1097,6 +1179,77 @@
         }
       }
     },
+    "/api/integrations/{id}/channels/{channelId}": {
+      "patch": {
+        "summary": "Bind (or unbind) an agent to an integration channel",
+        "tags": [
+          "Integrations"
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "in": "path",
+            "name": "channelId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "agentId"
+                ],
+                "properties": {
+                  "agentId": {
+                    "type": "integer",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Channel updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "channel": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid body"
+          },
+          "404": {
+            "description": "Integration, channel or agent not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
     "/api/connectors": {
       "get": {
         "summary": "List available connector types",
@@ -1124,200 +1277,6 @@
                           }
                         }
                       }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/webhook/{connectorType}/{integrationId}": {
-      "post": {
-        "summary": "Receive inbound webhook from a messaging platform",
-        "description": "Generic webhook endpoint for all connectors. Verifies HMAC signature, parses the message, and enqueues for async processing.",
-        "tags": [
-          "Webhooks"
-        ],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "connectorType",
-            "required": true,
-            "schema": {
-              "type": "string"
-            },
-            "description": "Connector type (e.g. chat2desk, webchat)"
-          },
-          {
-            "in": "path",
-            "name": "integrationId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "description": "Connector-specific webhook payload"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Webhook received and enqueued",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "ok": {
-                      "type": "boolean",
-                      "example": true
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Invalid webhook signature"
-          },
-          "404": {
-            "description": "Unknown connector or integration not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/widget/config/{integrationId}": {
-      "get": {
-        "summary": "Get public widget configuration",
-        "description": "Returns sanitized widget config for embedding. Checks Origin against allowedDomains.",
-        "tags": [
-          "Widget"
-        ],
-        "security": [],
-        "parameters": [
-          {
-            "in": "path",
-            "name": "integrationId",
-            "required": true,
-            "schema": {
-              "type": "integer"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Widget configuration",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "config": {
-                      "type": "object",
-                      "properties": {
-                        "theme": {
-                          "type": "string"
-                        },
-                        "accentColor": {
-                          "type": "string"
-                        },
-                        "position": {
-                          "type": "string"
-                        },
-                        "brandLogo": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "brandName": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "welcomeMessage": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "placeholderText": {
-                          "type": "string",
-                          "nullable": true
-                        },
-                        "mode": {
-                          "type": "string"
-                        },
-                        "autoOpen": {
-                          "type": "boolean"
-                        },
-                        "autoOpenDelayMs": {
-                          "type": "integer",
-                          "nullable": true
-                        },
-                        "requireEmail": {
-                          "type": "boolean"
-                        },
-                        "captureUtm": {
-                          "type": "boolean"
-                        },
-                        "removeBranding": {
-                          "type": "boolean"
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid integrationId"
-          },
-          "403": {
-            "description": "Origin not allowed"
-          },
-          "404": {
-            "description": "Integration or widget config not found"
-          },
-          "500": {
-            "description": "Internal server error"
-          }
-        }
-      }
-    },
-    "/api/health": {
-      "get": {
-        "summary": "Health check",
-        "tags": [
-          "Health"
-        ],
-        "security": [],
-        "responses": {
-          "200": {
-            "description": "Service is healthy",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "ok"
-                    },
-                    "timestamp": {
-                      "type": "string",
-                      "format": "date-time",
-                      "example": "2026-04-03T12:00:00.000Z"
                     }
                   }
                 }
@@ -1891,16 +1850,85 @@
         }
       }
     },
-    "/api/integrations/{id}/register-webhook": {
+    "/api/webhook/{connectorType}/{integrationId}": {
       "post": {
-        "summary": "Register or update the inbound webhook for a Chat2Desk integration",
+        "summary": "Receive inbound webhook from a messaging platform",
+        "description": "Generic webhook endpoint for all connectors. Verifies HMAC signature, parses the message, and enqueues for async processing.",
         "tags": [
-          "Integrations"
+          "Webhooks"
         ],
+        "security": [],
         "parameters": [
           {
             "in": "path",
-            "name": "id",
+            "name": "connectorType",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Connector type (e.g. chat2desk, webchat)"
+          },
+          {
+            "in": "path",
+            "name": "integrationId",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "Connector-specific webhook payload"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook received and enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "ok": {
+                      "type": "boolean",
+                      "example": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid webhook signature"
+          },
+          "404": {
+            "description": "Unknown connector or integration not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/widget/config/{integrationId}": {
+      "get": {
+        "summary": "Get public widget configuration",
+        "description": "Returns sanitized widget config for embedding. Checks Origin against allowedDomains.",
+        "tags": [
+          "Widget"
+        ],
+        "security": [],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "integrationId",
             "required": true,
             "schema": {
               "type": "integer"
@@ -1909,18 +1937,60 @@
         ],
         "responses": {
           "200": {
-            "description": "Webhook registered or updated",
+            "description": "Widget configuration",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "ok": {
-                      "type": "boolean"
-                    },
-                    "webhookRegisteredAt": {
-                      "type": "string",
-                      "format": "date-time"
+                    "config": {
+                      "type": "object",
+                      "properties": {
+                        "theme": {
+                          "type": "string"
+                        },
+                        "accentColor": {
+                          "type": "string"
+                        },
+                        "position": {
+                          "type": "string"
+                        },
+                        "brandLogo": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "brandName": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "welcomeMessage": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "placeholderText": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "mode": {
+                          "type": "string"
+                        },
+                        "autoOpen": {
+                          "type": "boolean"
+                        },
+                        "autoOpenDelayMs": {
+                          "type": "integer",
+                          "nullable": true
+                        },
+                        "requireEmail": {
+                          "type": "boolean"
+                        },
+                        "captureUtm": {
+                          "type": "boolean"
+                        },
+                        "removeBranding": {
+                          "type": "boolean"
+                        }
+                      }
                     }
                   }
                 }
@@ -1928,25 +1998,52 @@
             }
           },
           "400": {
-            "description": "Integration is not supported (not_supported - not a Chat2Desk integration)"
+            "description": "Invalid integrationId"
+          },
+          "403": {
+            "description": "Origin not allowed"
           },
           "404": {
-            "description": "Integration not found"
-          },
-          "502": {
-            "description": "Webhook registration failed at external provider"
+            "description": "Integration or widget config not found"
           },
           "500": {
             "description": "Internal server error"
           }
         }
       }
+    },
+    "/api/health": {
+      "get": {
+        "summary": "Health check",
+        "tags": [
+          "Health"
+        ],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2026-04-03T12:00:00.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
-  "tags": [
-    {
-      "name": "Sessions",
-      "description": "Multi-agent chat session lifecycle (pause/resume/close, context inspection, manual reassign)"
-    }
-  ]
+  "tags": []
 }

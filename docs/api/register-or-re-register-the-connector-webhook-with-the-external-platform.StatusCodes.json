@@ -1,0 +1,1 @@
+{"responses":{"200":{"description":"Result of webhook registration"},"400":{"description":"Connector does not support webhook auto-registration"},"404":{"description":"Integration not found"},"500":{"description":"Internal server error"}}}

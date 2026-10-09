@@ -1,0 +1,69 @@
+---
+id: register-or-re-register-the-connector-webhook-with-the-external-platform
+title: "Register (or re-register) the connector webhook with the external platform"
+description: "Idempotent. Registers this integration's inbound webhook on Chat2Desk using the CURRENT BASE_URL (the stored webhook_url is only a fallback and is corrected on success). An existing webhook with the same path (/api/webhook/chat2desk/{id}) is updated in place — domain change, secret rotation or rename never create duplicates."
+sidebar_label: "Register (or re-register) the connector webhook with the external platform"
+hide_title: true
+hide_table_of_contents: true
+api: eJztVcFuG0cM/RWCl9rAWHKD9LI3xc7BQJEaUtyLIATUDKUdaHdmPcOVLQgC+hH9wn5Jwd21okppkEOPPUkz4jw+ko9Pe3ScbfKN+BiwwAfHdROFg4xgymufhVMGKX0GH4TXiTTwJz0tYxscvPCyjHEDMcBdSfLunvMG2uzDGqRkuHuaTj9++gwfJrOPX56mv8KV3maJiY9vv7SpAp8hhmoHBCuqqiXZDVBwem1jSmyFnebIrbWc8/UIJgH41WfRTG8kXryUXdpMNUNDUsLVmBo/HgLGVik6zpvx3rvDtcK3jSMF9wGaiizDX3/8CS7W5APYksKaDWS2iQVSlK58iAkSB80ReMsJbGISBtc2lbcknEdoUGidsZjjw9e+ZVwYbChRzdpXLOZ79Np2pYoGFRIL9A4NJn5ufWKHhaSWDWZbck1Y7FF2TReluJzwcFhodG5iyJw14N3trX78c7JTzm0lEFfHbqVuvj0zPBh8/61ndzEEthITuMgZQhTIbdPEJEccaiXeXIK9vwQ7aUWHtFIJafQv30qt0SlQBZmTdplTilquwZqljE77FrOg6dtXYDfqE5nmbsrjNOj4ZiCMBnvEfgBtqrDAUqTJxVghRlu/9lV+bsmNbKzRnPF6TNG1dij0/L3j7c0PYNzzlqvY1BwEdX6ZbZu87DpGS6bEadJqUfPF6c8zFUE/5NOgoyaUBQ5a0XMfdJH9LtYNhR1MHh9A4oYDxKWQD+xglWLdrZCjXC4jJQczFt2yDA2tueu/D6vYZfVSaZrftdiZFquQaFCb26f6eXQ7ur0goIlXMUFNgda6wZMHoDUHyebUZ7LpTMDGoIDdFVXw4t2aJY9Ai+cg3crB1hN86MrtS9IVtDEIWVGqw2p9aoU3cM/bjOZscmcT0zpVXjWFk/dvnghXnQfcvGnruuuZPS7LhSPx6yDmpiJZxXQhiX3HVvXwvwv/ly7cL4bwq4ybinxnTt3g94NtzJEajwZPdYcGi8GFz7xjYbBU0ynmuN8vKfNTqg4HvX5uOen+LgxuKXla6mrM9+h81u8OixVVmb8z9qvp4PnX8G/Mh0sKO90yqlo9ocEN7/o/jsPi1B8ff5t9xsPhb13OyD0=
+sidebar_class_name: "post api-method"
+info_path: docs/api/vigilsquad-api
+custom_edit_url: null
+---
+
+import MethodEndpoint from "@theme/ApiExplorer/MethodEndpoint";
+import ParamsDetails from "@theme/ParamsDetails";
+import RequestSchema from "@theme/RequestSchema";
+import StatusCodes from "@theme/StatusCodes";
+import OperationTabs from "@theme/OperationTabs";
+import TabItem from "@theme/TabItem";
+import Heading from "@theme/Heading";
+import Translate from "@docusaurus/Translate";
+
+<Heading
+  as={"h1"}
+  className={"openapi__heading"}
+  children={"Register (or re-register) the connector webhook with the external platform"}
+>
+</Heading>
+
+<MethodEndpoint
+  method={"post"}
+  path={"/api/integrations/{id}/register-webhook"}
+  context={"endpoint"}
+>
+  
+</MethodEndpoint>
+
+
+
+Idempotent. Registers this integration's inbound webhook on Chat2Desk using the CURRENT BASE_URL (the stored webhook_url is only a fallback and is corrected on success). An existing webhook with the same path (/api/webhook/chat2desk/\{id\}) is updated in place — domain change, secret rotation or rename never create duplicates.
+
+<Heading
+  id={"request"}
+  as={"h2"}
+  className={"openapi-tabs__heading"}
+>
+  <Translate id="theme.openapi.request.title">Request</Translate>
+</Heading>
+
+<ParamsDetails
+  {...require("./register-or-re-register-the-connector-webhook-with-the-external-platform.ParamsDetails.json")}
+>
+  
+</ParamsDetails>
+
+<RequestSchema
+  {...require("./register-or-re-register-the-connector-webhook-with-the-external-platform.RequestSchema.json")}
+>
+  
+</RequestSchema>
+
+<StatusCodes
+  {...require("./register-or-re-register-the-connector-webhook-with-the-external-platform.StatusCodes.json")}
+>
+  
+</StatusCodes>
+
+
+      
