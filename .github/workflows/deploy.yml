@@ -31,6 +31,9 @@ jobs:
           repository: nutek-devs/vigilsquad
           ref: main
           token: ${{ secrets.GH_CONTAINER_REGISTRY_TOKEN }}
+          # Org PAT: do not leave it in vigilsquad/.git/config, where npm
+          # lifecycle scripts and build plugins could read it.
+          persist-credentials: false
           path: vigilsquad
           sparse-checkout: docs/openapi.json
           sparse-checkout-cone-mode: false
